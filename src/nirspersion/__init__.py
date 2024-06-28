@@ -1,0 +1,1 @@
+from .nirspersion import NIRSpec

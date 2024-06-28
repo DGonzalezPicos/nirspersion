@@ -3,14 +3,15 @@ import matplotlib.pyplot as plt
 from astropy.io import fits
 import pathlib
 
-class NIRSPec:
+class NIRSpec:
     
-    default_path = pathlib.Path('data/')
+    default_path = pathlib.Path(__file__).parent / '../../data'
+    gratings = ['g140h', 'g235h', 'g395h'] # only implemented for now
     
-    def __init__(self, grisms, path=None):
-        self.grisms = grisms
+    def __init__(self, path=None):
+        
         self.path = pathlib.Path(path) if path is not None else self.default_path
-        self.files = [self.path/f'jwst_nirspec_{g}_disp.fits' for g in grisms]
+        self.files = [self.path/f'jwst_nirspec_{g}_disp.fits' for g in self.gratings]
         assert all([f.exists() for f in self.files]), 'Files not found'
         
         self._load_files()
@@ -31,8 +32,8 @@ class NIRSPec:
     
     def __str__(self):
         out = f'NIRSpec resolution data loaded from {self.path}/\n'
-        for i, g in enumerate(self.grisms):
-            out += f' Grism {g} (R ~ ({np.min(self.resolution[i]):.0f}, {np.max(self.resolution[i]):.0f}))\n'
+        for i, g in enumerate(self.gratings):
+            out += f' grating {g} (R ~ ({np.min(self.resolution[i]):.0f}, {np.max(self.resolution[i]):.0f}))\n'
         return out
     def __repr__(self):
         return self.__str__()
@@ -44,7 +45,7 @@ class NIRSPec:
         
         fig, ax = plt.subplots(1,1, figsize=(8,6))
         for i, (w, r) in enumerate(zip(self.wave, self.resolution)):
-            ax.plot(w, r, label=f'{self.grisms[i]} (R ~ {np.mean(r):.0f})')
+            ax.plot(w, r, label=f'{self.gratings[i]} (R ~ {np.mean(r):.0f})')
 
         ax.set_xlabel('Wavelength [nm]')    
         ax.set_ylabel('Resolution')
@@ -53,7 +54,7 @@ class NIRSPec:
         return self
         
         
-    def __call__(self, wave, flux, grism):
+    def __call__(self, wave, flux, grating):
         """
         Broadens the spectrum by the instrumental resolution that scales linearly with wavelength.
 
@@ -62,19 +63,17 @@ class NIRSPec:
             Wavelength array in [um]
         flux : ndarray
             Flux array.
-        out_res : float
-            Minimum output resolution at the start of the wavelength array.
-        in_res : float, optional
-            Input resolution (default is 1e6).
+        grating : str
+            Grating name. Must be one of ['g140h', 'g235h', 'g395h'].
 
         Returns:
-        flux_LSF : ndarray
-            Flux array after applying instrumental broadening.
+        broadened_flux : ndarray
+            Broadened flux array.
         """
-        assert grism in self.grisms, 'Grism not found'
+        assert grating in self.gratings, 'grating not found'
 
         # Calculate the resolution array with the correct profile
-        res = np.interp(wave, self.wave[self.grisms.index(grism)], self.resolution[self.grisms.index(grism)])
+        res = np.interp(wave, self.wave[self.gratings.index(grating)], self.resolution[self.gratings.index(grating)])
 
         # Calculate the sigma for the LSF at each wavelength point
         sigma_array = np.sqrt(1/res**2) / (2 * np.sqrt(2 * np.log(2)))
@@ -105,12 +104,12 @@ class NIRSPec:
             
         
 if __name__ == '__main__':
-    grisms = ['g140h', 'g235h', 'g395h']
-    nr = NIRSPec(grisms)
+    # gratings = ['g140h', 'g235h', 'g395h']
+    nr = NIRSpec()
 
     # g = 'g235h'
     g = 'g395h'
-    g_idx = nr.grisms.index(g)
+    g_idx = nr.gratings.index(g)
     wave_g = nr.wave[g_idx]
     # create fake spectrum to test broadening function
     x = np.linspace(wave_g[0], wave_g[-1], 20 * len(wave_g))
