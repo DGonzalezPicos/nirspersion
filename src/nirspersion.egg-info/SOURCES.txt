@@ -1,0 +1,8 @@
+README.md
+setup.py
+src/nirspersion/__init__.py
+src/nirspersion/nirspersion.py
+src/nirspersion.egg-info/PKG-INFO
+src/nirspersion.egg-info/SOURCES.txt
+src/nirspersion.egg-info/dependency_links.txt
+src/nirspersion.egg-info/top_level.txt

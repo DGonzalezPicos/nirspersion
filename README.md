@@ -5,7 +5,7 @@
 ## Features
 
 - Apply instrumental broadening to spectra for each grating
-    - High-res mode (R=2700)
+    - High-res mode (R~2700)
 - Load and manage resolving power data for JWST NIRSpec
 
 ## Installation

@@ -1,0 +1,7 @@
+Metadata-Version: 2.1
+Name: nirspersion
+Version: 0.1.0
+Summary: Instrumental broadening of JWST NIRSpec with custom resolving power profiles.
+Author: Darío González Picos
+Author-email: dariogonzalezpicos@gmail.com
+Requires-Python: >=3.6
